@@ -37,12 +37,9 @@ class ResumeService:
         text = self.extract_text(resume_id)
         if not text:
             return None
-        try:
-            skills = SkillExtractor().extract(text)
-            self.repo.update(resume, {"skills_data": json.dumps(skills)})
-            return skills
-        except Exception:
-            return None
+        skills = SkillExtractor().extract(text)
+        self.repo.update(resume, {"skills_data": json.dumps(skills)})
+        return skills
 
     def upload(self, file: UploadFile, user_id: int, title: str) -> Resume:
         if not file.filename or not file.filename.lower().endswith(".pdf"):
@@ -66,9 +63,6 @@ class ResumeService:
             "file_path": file_path,
             "extracted_text": text,
         })
-        try: 
-            self.extract_skills(resume.id)
-        except Exception:
-            pass
+        self.extract_skills(resume.id)
 
         return self.repo.get_by_id(resume.id)

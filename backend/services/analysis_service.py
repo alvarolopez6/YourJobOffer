@@ -24,6 +24,19 @@ class AnalysisService:
         if not job:
             raise HTTPException(404, detail="Job not found")
 
+        existing = self.match_repo.get_by_resume_and_job(resume_id, job_id)
+        if existing:
+            return {
+                "id": existing.id,
+                "user_id": existing.user_id,
+                "resume_id": existing.resume_id,
+                "job_id": existing.job_id,
+                "match_score": existing.match_score,
+                "matched_skills": json.loads(existing.matched_skills),
+                "missing_skills": json.loads(existing.missing_skills),
+                "created_at": existing.created_at,
+            }
+
         if not resume.skills_data or not job.skills_data:
             raise HTTPException(400, detail="Skills data missing. Ensure both resume and job have extracted skills.")
 

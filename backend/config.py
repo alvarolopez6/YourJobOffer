@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8000
     UPLOAD_DIR: str = "uploads"
+    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]
 
     model_config = {"env_file": ".env"}
 

@@ -27,18 +27,19 @@ class JobService:
             return None
         if job.skills_data:
             return json.loads(job.skills_data)
-        try:
-            skills = SkillExtractor().extract(job.description)
-            self.repo.update(job, {"skills_data": json.dumps(skills)})
-            return skills
-        except Exception:
-            return None
+        skills = SkillExtractor().extract(job.description)
+        self.repo.update(job, {"skills_data": json.dumps(skills)})
+        return skills
 
     def update(self, job_id: int, data: dict) -> Job | None:
         job = self.repo.get_by_id(job_id)
         if not job:
             return None
-        return self.repo.update(job, data)
+        updated = self.repo.update(job, data)
+        if "description" in data:
+            self.repo.update(updated, {"skills_data": None})
+            self.extract_skills(updated.id)
+        return self.repo.get_by_id(job_id)
 
     def delete(self, job_id: int) -> bool:
         job = self.repo.get_by_id(job_id)
