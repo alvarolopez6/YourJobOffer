@@ -83,6 +83,7 @@ class TestResumeService:
     @patch("backend.services.resume_service.settings")
     def test_upload_rejects_non_pdf(self, mock_settings, mock_pdf_cls, mock_extractor_cls, db_session):
         mock_settings.UPLOAD_DIR = "/tmp/test_uploads"
+        mock_settings.MAX_UPLOAD_SIZE_MB = 10
         svc = ResumeService(db_session)
         file = MagicMock(spec=UploadFile)
         file.filename = "resume.txt"
@@ -93,9 +94,26 @@ class TestResumeService:
     @patch("backend.services.resume_service.SkillExtractor")
     @patch("backend.services.resume_service.PdfExtractor")
     @patch("backend.services.resume_service.settings")
+    def test_upload_rejects_oversized_file(self, mock_settings, mock_pdf_cls, mock_extractor_cls, db_session):
+        mock_settings.UPLOAD_DIR = "/tmp/test_uploads"
+        mock_settings.MAX_UPLOAD_SIZE_MB = 1
+        svc = ResumeService(db_session)
+        file = MagicMock(spec=UploadFile)
+        file.filename = "resume.pdf"
+        file.file = MagicMock()
+        file.file.read.return_value = b"x" * (2 * 1024 * 1024)
+        with pytest.raises(HTTPException) as exc_info:
+            svc.upload(file, 1, "Test")
+        assert exc_info.value.status_code == 413
+        assert "too large" in exc_info.value.detail.lower()
+
+    @patch("backend.services.resume_service.SkillExtractor")
+    @patch("backend.services.resume_service.PdfExtractor")
+    @patch("backend.services.resume_service.settings")
     @patch("backend.services.resume_service.Path")
     def test_upload_saves_file(self, mock_path_cls, mock_settings, mock_pdf_cls, mock_extractor_cls, db_session, sample_user):
         mock_settings.UPLOAD_DIR = "/tmp/test_uploads"
+        mock_settings.MAX_UPLOAD_SIZE_MB = 10
         mock_path_instance = MagicMock()
         mock_path_cls.return_value = mock_path_instance
         mock_path_instance.__truediv__ = MagicMock(return_value="/tmp/test_uploads/fake.pdf")

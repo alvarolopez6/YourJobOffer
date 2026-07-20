@@ -4,3 +4,11 @@ __pycache__
 .env
 uploads
 docker
+.git
+.github
+.coverage
+.pytest_cache
+backend/tests
+*.md
+requirements-dev.txt
+pyproject.toml

@@ -53,6 +53,12 @@ class ResumeService:
         file_path = str(upload_dir / filename)
 
         content = file.file.read()
+        max_size = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
+        if len(content) > max_size:
+            raise HTTPException(
+                413,
+                detail=f"File too large. Maximum size is {settings.MAX_UPLOAD_SIZE_MB}MB",
+            )
         with open(file_path, "wb") as f:
             f.write(content)
 

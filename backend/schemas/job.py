@@ -28,7 +28,6 @@ class JobResponse(BaseModel):
     location: Optional[str] = None
     posted_date: Optional[date] = None
     salary_range: Optional[str] = None
-    skills_data: Optional[str] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

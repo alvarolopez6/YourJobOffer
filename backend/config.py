@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     API_PORT: int = 8000
     UPLOAD_DIR: str = "uploads"
     ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]
+    MAX_UPLOAD_SIZE_MB: int = 10
 
     model_config = {"env_file": ".env"}
 
